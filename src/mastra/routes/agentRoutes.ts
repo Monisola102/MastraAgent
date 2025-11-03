@@ -70,8 +70,7 @@ const foodInfoAgentRoute = registerApiRoute("/a2a/agent/food-info/:agentId", {
             id: requestId || null,
             error: {
               code: -32600,
-              message:
-                'Invalid Request: jsonrpc must be "2.0" and id is required',
+              message: 'Invalid Request: jsonrpc must be "2.0" and id is required',
             },
           },
           400
@@ -183,15 +182,22 @@ const foodInfoAgentRoute = registerApiRoute("/a2a/agent/food-info/:agentId", {
         } as FoodInfoResponse;
       });
 
-      const agentText = `Nutritional info for ${
-        (response.text as FoodInfoResponse).foodName || "food"
-      } fetched successfully.`;
+      const fullNutritionText = `
+${(response.text as FoodInfoResponse).foodName}:
+Calories: ${(response.text as FoodInfoResponse).calories}
+Protein: ${(response.text as FoodInfoResponse).protein}
+Fat: ${(response.text as FoodInfoResponse).fat}
+Carbs: ${(response.text as FoodInfoResponse).carbs}
+Vitamins: ${(response.text as FoodInfoResponse).vitamins?.join(", ") || "N/A"}
+Minerals: ${(response.text as FoodInfoResponse).minerals?.join(", ") || "N/A"}
+Health Benefits: ${(response.text as FoodInfoResponse).healthBenefits.join(", ")}
+`;
 
       const artifacts = [
         {
           artifactId: randomUUID(),
-          name: `${agentId}Response`,
-          parts: [{ kind: "text", text: agentText }],
+          name: "NutritionInfoText",
+          parts: [{ kind: "text", text: fullNutritionText }],
         },
         {
           artifactId: randomUUID(),
@@ -216,7 +222,7 @@ const foodInfoAgentRoute = registerApiRoute("/a2a/agent/food-info/:agentId", {
         {
           kind: "message",
           role: "agent",
-          parts: [{ kind: "text", text: agentText }],
+          parts: [{ kind: "text", text: fullNutritionText }],
           messageId: randomUUID(),
           taskId: taskId || randomUUID(),
         },
@@ -234,7 +240,7 @@ const foodInfoAgentRoute = registerApiRoute("/a2a/agent/food-info/:agentId", {
             message: {
               messageId: randomUUID(),
               role: "agent",
-              parts: [{ kind: "text", text: agentText }],
+              parts: [{ kind: "text", text: fullNutritionText }],
               kind: "message",
             },
           },
